@@ -3,11 +3,9 @@ import game.textures as textures
 from game.inventory import HOTBAR_PIXEL, HOTBAR_TOP, HOTBAR_LEFT, HOTBAR_WIDTH_PX
 
 class HUD(Entity):
-    """
-    HUD do jogador em primeira pessoa.
-    Exibe corações de vida (esquerda) e ícones de fome (direita),
-    alinhados logo acima da hotbar.
-    """
+    # HUD do jogador em primeira pessoa.
+    # Exibe corações de vida (esquerda) e ícones de fome (direita),
+    # alinhados logo acima da hotbar.
 
     MAX_HEARTS = 10   # 10 ícones = 20 HP (cada coração = 2 HP)
     MAX_HUNGER = 10   # 10 ícones = 20 fome
@@ -103,7 +101,7 @@ class HUD(Entity):
 
     # Helpers públicos
     def attach_player(self, player_ref):
-        """Liga o HUD a um novo PlayerController após re-spawn."""
+        # Liga o HUD a um novo PlayerController após re-spawn.
         self.player_ref = player_ref
 
     def show(self, show_vitals: bool = True):

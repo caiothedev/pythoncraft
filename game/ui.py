@@ -8,6 +8,73 @@ death_panel = None
 
 mainFont = "assets/font/Minecraft.ttf"
 
+_get_player = lambda: None
+_settings   = {
+    'volume': 0.7, 
+    'sensebilty': 0,
+    'fov': 0,
+}
+
+def _btn(text, parent, y, on_click, width=0.4):
+    return Button(
+        text=text,
+        parent=parent,
+        font=mainFont,
+        pixel_perfect=True,
+        scale=(width, 0.055),
+        origin=(0, 0),
+        y=y,
+        z=-0.02,
+        color=color.rgb(80, 80, 80),
+        highlight_color=color.rgb(100, 100, 100),
+        pressed_color=color.rgb(55, 55, 55),
+        text_color=color.white,
+        radius=0.02,
+        shader=unlit_shader,
+        on_click=on_click,
+    )
+
+def _label(text, parent, y):
+    return Text(
+        text,
+        parent=parent,
+        font=mainFont,
+        pixel_perfect=True,
+        scale=0.65,
+        origin=(-0.5, 0),
+        x=-0.21,
+        y=y,
+        z=-0.02,
+        color=color.rgb(200, 200, 200),
+        shader=unlit_shader
+    )
+
+def _separator(parent, y):
+    Entity(
+        parent=parent,
+        model='quad',
+        color=color.rgba(180, 180, 180, 60),
+        scale=(0.5, 0.002),
+        y=y,
+        z=-0.02,
+        shader=unlit_shader
+    )
+
+def _slider(parent, y, min_val, max_val, default, step=None):
+    s = Slider(
+        min=min_val,
+        max=max_val,
+        default=default,
+        step=step,
+        dynamic=True,
+        parent=parent,
+        scale=(0.46, 0.035),
+        origin=(0, 0),
+        y=y,
+        z=-0.02,
+    )
+    return s
+
 def build_main_menu(start_game):
     global menu_panel, settings_panel
 
@@ -53,7 +120,7 @@ def build_main_menu(start_game):
             on_click=Func(start_game, mode.id)
         )
 
-    Button(
+    _btn(
         "Sair", 
         parent=menu_panel, 
         font=mainFont,
@@ -141,12 +208,10 @@ def build_death_screen(respawn_callback, menu_callback):
         on_click=menu_callback,
     )
 
-
 def show_death_screen():
     global death_panel
     if death_panel:
         death_panel.enabled = True
-
 
 def hide_death_screen():
     global death_panel

@@ -1,61 +1,60 @@
-# CONTRIBUIÇÃO - ᴘᴛ
+# CONTRIBUTING - ᴇɴ
 
-Obrigado por considerar contribuir com o meu projeto Pythoncraft! Este documento explica como o projeto está organizado, os padrões que seguimos e como submeter sua contribuição da forma certa.
+Thank you for considering a contribution to my Pythoncraft project! This document explains how the project is organized, the standards we follow, and how to submit your contribution correctly.
 
-## Índice
- 
-- [Pré-requisitos](#pré-requisitos)
-- [Como contribuir](#como-contribuir)
-- [Padrões de código](#padrões-de-código)
-- [Commits e Pull Requests](#commits-e-pull-requests)
-- [Reportando bugs](#reportando-bugs)
+## Table of Contents
 
-## Pré-requisitos
- 
+- [Prerequisites](#prerequisites)
+- [How to contribute](#how-to-contribute)
+- [Code standards](#code-standards)
+- [Commits and Pull Requests](#commits-and-pull-requests)
+- [Reporting bugs](#reporting-bugs)
+
+## Prerequisites
+
 - Python **3.10+**
 - pip
 - Git
 
-## Como contribuir
- 
-1. **Abra uma issue** antes de começar qualquer coisa grande — discuta a ideia primeiro.
-2. **Faça um fork** do repositório e crie uma branch descritiva:
-   ```bash
-   git checkout -b feature/sistema-de-crafting
-   git checkout -b fix/colisao-blocos-superficie
-   ```
-3. Faça suas alterações seguindo os padrões abaixo.
-4. Teste rodando `python main.py` e confirme que nada quebrou.
-5. Abra um **Pull Request** com uma descrição clara do que foi feito e por quê.
+## How to contribute
 
-## Padrões de código
- 
-- **Idioma do código:** inglês para nomes de variáveis, funções e classes; português para comentários, docstrings e mensagens ao jogador.
-- **Tipagem:** use type hints sempre que possível (`def get_block(id: str) -> Block`).
-- **Sem dependências extras** sem discussão prévia — o projeto se mantém enxuto intencionalmente.
-- Siga o estilo já estabelecido nos módulos existentes: funções de registro (`register_*`), funções de carregamento (`load_all_*`) e getters (`get_*`).
-
-## Commits e Pull Requests
- 
-Use mensagens de commit curtas e em português:
- 
+1. **Open an issue** before starting any major work — discuss the idea first.
+2. **Fork** the repository and create a descriptive branch:
+```bash
+git checkout -b feature/crafting-system
+git checkout -b fix/surface-block-collision
 ```
-feat: adiciona bloco de areia com física
-fix: corrige colisão na borda dos chunks
-refactor: separa lógica de chunk em core/chunk.py
-assets: adiciona textura de madeira de bétula
-docs: atualiza CONTRIBUTING com fluxo de entidades
+3. Make your changes, following the standards below.
+4. Test your work by running `python main.py` and ensuring nothing is broken.
+5. Open a **Pull Request** with a clear description of what was done and why.
+
+## Code standards
+
+- **Language:** Use English for variable, function, and class names; use Portuguese for comments, docstrings, and messages displayed to the player.
+- **Typing:** Use type hints whenever possible (`def get_block(id: str) -> Block`).
+- **No extra dependencies** without prior discussion — the project is intentionally kept lightweight.
+- Follow the style already established in existing modules: registration functions (`register_*`), loading functions (`load_all_*`), and getters (`get_*`). ## Commits and Pull Requests
+
+Use short commit messages in Portuguese:
+
 ```
- 
-PRs pequenos e focados são mais fáceis de revisar. Evite misturar features e fixes no mesmo PR.
+feat: add sand block with physics
+fix: fix collision at chunk edges
+refactor: separate chunk logic into core/chunk.py
+assets: add birch wood texture
+docs: update CONTRIBUTING with entity workflow
+```
 
-## Reportando bugs
- 
-Abra uma issue com:
- 
-- **O que aconteceu** (comportamento atual)
-- **O que deveria acontecer** (comportamento esperado)
-- **Como reproduzir** (passo a passo)
-- **Versão do Python e sistema operacional**
+Small, focused PRs are easier to review. Avoid mixing features and fixes in the same PR.
 
-by caiothevisual
+## Reporting bugs
+
+Open an issue including:
+
+- **What happened** (current behavior)
+- **What should have happened** (expected behavior)
+- **How ​​to reproduce** (step-by-step instructions)
+- **Python version and operating system**
+
+by caiothedev<br/>
+#contributing #game

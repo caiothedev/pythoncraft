@@ -37,6 +37,18 @@ def _block_id_for_layer(y: int, surface_y: int) -> str:
 
 _HALF = 0.5
 
+_UV_TOP  = [Vec2(0,0), Vec2(1,0), Vec2(1,1), Vec2(0,1)]
+_UV_SIDE = [Vec2(0,0), Vec2(0,1), Vec2(1,1), Vec2(1,0)]
+
+_FACE_BRIGHTNESS = {
+    "top":    Vec4(1.00, 1.00, 1.00, 1),
+    "bottom": Vec4(0.55, 0.55, 0.55, 1),
+    "front":  Vec4(0.80, 0.80, 0.80, 1),
+    "back":   Vec4(0.70, 0.70, 0.70, 1),
+    "right":  Vec4(0.90, 0.90, 0.90, 1),
+    "left":   Vec4(0.60, 0.60, 0.60, 1),
+}
+
 _FACES = [
     # name,   offset,       4 vértices (x,y,z)
     ("top",    ( 0,  1,  0), [
@@ -44,31 +56,31 @@ _FACES = [
         Vec3( _HALF,  _HALF, -_HALF),
         Vec3( _HALF,  _HALF,  _HALF),
         Vec3(-_HALF,  _HALF,  _HALF),
-    ]),
+    ], _UV_TOP),
     ("bottom", ( 0, -1,  0), [
         Vec3(-_HALF, -_HALF,  _HALF),
         Vec3( _HALF, -_HALF,  _HALF),
         Vec3( _HALF, -_HALF, -_HALF),
         Vec3(-_HALF, -_HALF, -_HALF),
-    ]),
+    ], _UV_TOP),
     ("front",  ( 0,  0,  1), [
         Vec3(-_HALF, -_HALF,  _HALF),
         Vec3(-_HALF,  _HALF,  _HALF),
         Vec3( _HALF,  _HALF,  _HALF),
         Vec3( _HALF, -_HALF,  _HALF),
-    ]),
+    ], _UV_SIDE),
     ("back",   ( 0,  0, -1), [
         Vec3( _HALF, -_HALF, -_HALF),
         Vec3( _HALF,  _HALF, -_HALF),
         Vec3(-_HALF,  _HALF, -_HALF),
         Vec3(-_HALF, -_HALF, -_HALF),
-    ]),
+    ], _UV_SIDE),
     ("right",  ( 1,  0,  0), [
         Vec3( _HALF, -_HALF,  _HALF),
         Vec3( _HALF,  _HALF,  _HALF),
         Vec3( _HALF,  _HALF, -_HALF),
         Vec3( _HALF, -_HALF, -_HALF),
-    ]),
+    ], _UV_SIDE),
     ("left",   (-1,  0,  0), [
         Vec3(-_HALF, -_HALF, -_HALF),
         Vec3(-_HALF,  _HALF, -_HALF),
@@ -150,7 +162,7 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
                 if block is None:
                     continue
 
-                for face_name, (dx, dy, dz), verts in _FACES:
+                for face_name, (dx, dy, dz), verts, face_uvs in _FACES:
                     nx, ny, nz = x + dx, y + dy, z + dz
 
                     # Só renderiza face se o vizinho estiver vazio (face culling)
@@ -168,6 +180,7 @@ def _build_chunk_mesh(cx: int, cz: int) -> Entity:
                     shade = _FACE_SHADE[face_name]
                     face_color = color.Color(shade, shade, shade, 1)
 
+                    tint = _FACE_BRIGHTNESS[face_name]
                     base_idx = len(bucket["verts"])
                     uvs = _QUAD_UVS if face_name in ("top", "bottom") else _SIDE_UVS
                     for v, uv in zip(verts, uvs):
@@ -353,7 +366,7 @@ def create_world(size: int = 16, max_height: int = 8):
         cz = z // CHUNK_SIZE
         chunk_set.add((cx, cz))
 
-    # 3 — Constrói mesh por chunk
+    # 3 — Constrói mesh e colisores por chunk
     for (cx, cz) in chunk_set:
         entity = _build_chunk_mesh(cx, cz)
         _chunk_entities[(cx, cz)] = entity

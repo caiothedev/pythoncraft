@@ -9,10 +9,9 @@ General agent and design rules are imported below and remain the source of truth
 ---
 
 @AGENTS.md [AGENTS](./AGENTS.md)
-@DESIGN.md [DESIGN](./DESIGN.md)
 @CONTRIBUTING.md [CONTRIBUTING](./CONTRIBUTING.md)
 @README.md [README](./README.md)
-@docs/README.md [DOCUMENTATION](./docs/README.md)
+@docs/ARCHITECTURE.md [ARCHITECTURE](./docs/ARCHITECTURE.md)
 
 ---
 

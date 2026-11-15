@@ -347,4 +347,5 @@ Itens que já têm estrutura no código mas ainda não estão completos — úte
 - **Idiomas**: `assets/lang/*.json` existem, mas os textos da UI e os nomes de blocos/itens ainda estão fixos em português no código.
 - **Configurações**: o painel de pausa mostra opções de exemplo (volume e sensibilidade ainda não são ajustáveis).
 
-by caiothevisual
+by caiothedev<br />
+#architecture

@@ -1,4 +1,5 @@
 from ursina import *
+from ursina.shaders import unlit_shader
 
 from game.core.modes import MODES
 
@@ -121,19 +122,10 @@ def build_main_menu(start_game):
         )
 
     _btn(
-        "Sair", 
-        parent=menu_panel, 
-        font=mainFont,
-        pixel_perfect=True,
-        scale=(0.4, 0.06), 
-        origin=(0,0),
-        y=-0.05 - len(MODES) * 0.08,
-        color=color.rgb32(111, 111, 111),
-        highlight_color=color.rgb32(121, 121, 121),
-        pressed_color=color.rgb32(86, 86, 86),
-        text_color=color.white,
-        radius=0.02,
-        on_click=application.quit
+        "Sair",
+        menu_panel,
+        -0.05 - len(MODES) * 0.08,
+        application.quit,
     )
 
     settings_panel = WindowPanel(

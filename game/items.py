@@ -120,7 +120,7 @@ def load_all_items():
 
     register_item("wheat_seeds", Item(
         name="Sementes de Trigo",
-        texture=tex_module.items["wheat_seeds"],
+        texture=tex_module.items["wheat_seeds_variant_1"],
         item_type=ITEM_TYPE_UTILITY,
     ))
 
@@ -156,7 +156,7 @@ def load_all_items():
 
     register_item("coal", Item(
         name="Carvão",
-        texture=tex_module.items["coal"],
+        texture=tex_module.items["coal_variant_1"],
         item_type=ITEM_TYPE_UTILITY,
     ))
 

@@ -1,4 +1,5 @@
-from typing import Callable, Iterable, NamedTuple, Optional
+from dataclasses import dataclass, replace
+from typing import Callable, Iterable, Optional
 
 from game.craft import check_craft
 
@@ -7,14 +8,15 @@ MAX_STACK = 64
 LEFT = "left"
 RIGHT = "right"
 
-class ItemStack(NamedTuple):
+@dataclass(frozen=True)
+class ItemStack:
     """Uma pilha de itens. Imutável: alterações criam uma pilha nova."""
     id: str
     count: int
 
 def _with_count(stack: ItemStack, count: int) -> Optional[ItemStack]:
     """A mesma pilha com outra quantidade (None se zerar)."""
-    return stack._replace(count=count) if count > 0 else None
+    return replace(stack, count=count) if count > 0 else None
 
 class Container:
     """

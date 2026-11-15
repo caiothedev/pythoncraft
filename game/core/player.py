@@ -34,7 +34,7 @@ class PlayerController(Entity):
         mouse.locked = True
         self.mouse_sensitivity = Vec2(55, 55)
 
-        self.speed = 5
+        self.speed = 5.5
         self.sneak_speed_multiplier = 0.3
         self.gravity = 32            # blocos/s²
         self.max_fall_speed = 60     # blocos/s

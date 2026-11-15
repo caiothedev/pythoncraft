@@ -18,7 +18,7 @@ class Block:
         self,
         name: str,
         texture=None,
-        textures: dict = None,
+        textures: dict | None = None,
         block_type: str = BLOCK_TYPE_SOLID,
         hardness: float = 1,
         transparent: bool = False,
@@ -27,6 +27,7 @@ class Block:
         **attributes
     ):
         self.name = name
+        self.id = ""
         if textures:
             self.textures = textures
         else:

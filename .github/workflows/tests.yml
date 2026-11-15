@@ -18,8 +18,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
       - name: Instalar dependências
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: Verificar sintaxe
         run: python -m compileall -q game main.py tests
       - name: Rodar testes
-        run: python -m unittest discover tests -v
+        run: coverage run --branch -m unittest discover tests -v
+      - name: Medir cobertura
+        run: coverage report --fail-under=60
+      - name: Verificar lint
+        run: ruff check game main.py tests
+      - name: Verificar tipos
+        run: mypy game/core/world.py game/core/container.py game/core/daynight.py game/core/mining.py game/core/modes.py game/core/physics.py game/core/state.py game/core/vitals.py game/craft.py

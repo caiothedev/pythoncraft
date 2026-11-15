@@ -74,7 +74,7 @@ stateDiagram-v2
 
 | Callback no `main.py` | O que faz |
 |---|---|
-| `_enter_loading` | esconde o menu, gera o mundo (`create_world(size=28, max_height=8)`), define o spawn, prepara a hotbar do modo e liga o céu às 0.3 (manhã) |
+| `_enter_loading` | esconde o menu, inicializa o mundo (`create_world(size=28, max_height=8, render_distance=2)`), define o spawn, prepara a hotbar do modo e liga o céu às 0.3 (manhã) |
 | `_enter_playing` | cria/recria/reativa o jogador conforme o estado anterior; volta a correr o relógio do dia |
 | `_enter_paused` | mostra o painel de configurações, desativa o jogador, solta o mouse e congela o tempo |
 | `_enter_dead` / `_exit_dead` | fecha a tela aberta, espalha o inventário no chão (se o modo tiver drops) e mostra/esconde a tela de morte |
@@ -106,25 +106,23 @@ A fonte da verdade é um único dicionário esparso:
 placed_blocks: dict[tuple[int, int, int], str]   # (x, y, z) -> block_id
 ```
 
-Blocos são cubos 1×1×1 **centrados** na coordenada inteira. Todo o resto (malhas e colisores) é derivado desse dicionário e pode ser reconstruído a partir dele.
+Blocos são cubos 1×1×1 **centrados** na coordenada inteira. Índices auxiliares por chunk e por coluna evitam varrer o mundo inteiro para reconstruir uma mesh ou consultar o topo. Apenas chunks dentro da distância de renderização ficam em `placed_blocks`; chunks descarregados são regenerados pela seed.
 
 | Estrutura | Chave | Conteúdo |
 |---|---|---|
 | `placed_blocks` | `(x, y, z)` | ID do bloco |
 | `_chunk_entities` | `(cx, cz)` | `Entity` pai com as malhas do chunk |
 | `_colliders` | `(x, y, z)` | colisor `box` invisível (só para blocos expostos) |
+| `_blocks_by_chunk` / `_blocks_by_column` | chunk / coluna | índices de blocos carregados |
 | `world_parent` | — | `Entity` raiz de tudo que pertence ao mundo |
 
 ### Geração (`create_world`)
 
-1. **Relevo**: para cada coluna em `[-size, size)`, `get_height` amostra um `PerlinNoise(octaves=4)` e define a superfície. Camadas: `grass` no topo, `dirt` nas 2 abaixo, `stone` até `WORLD_BOTTOM = -3`.
-2. **Árvores** (`_generate_trees`): ~5% das colunas de grama, com distância mínima de 8 blocos entre árvores e uma área livre de 3 blocos em volta do spawn. Tronco de `oak_log` (4–6) e copa de `oak_leaves`.
-3. **Minérios** (`_generate_ores`): substitui `stone` por `coal_ore`, `iron_ore`, `gold_ore` ou `diamond_ore`, cada um com uma probabilidade e uma profundidade mínima relativa à superfície.
-4. **Malhas**: descobre os chunks ocupados e constrói uma malha por chunk.
-5. **Colisores**: cria colisores para os blocos expostos.
-6. Retorna a altura do topo em `(0, 0)`, usada para posicionar o spawn.
-
-Árvores e minérios usam `random.Random(seed)` derivado da seed do ruído, então a distribuição é reproduzível para um mesmo relevo.
+1. **Relevo**: `create_world(size, max_height, seed)` cria um `PerlinNoise` com seed explícita; `max_height` controla a amplitude da superfície.
+2. **Chunks sob demanda**: apenas os chunks dentro de `render_distance` da posição atual são gerados. `stream_world(position)` carrega os novos e descarrega os distantes.
+3. **Árvores e minérios**: são derivados deterministicamente da seed e das coordenadas, portanto o mesmo mundo pode ser regenerado sem armazenar todos os blocos.
+4. **Malhas e colisores**: são criados por chunk carregado; vizinhos carregados são reconstruídos quando uma fronteira muda.
+5. Retorna a altura do topo em `(0, 0)`, usada para posicionar o spawn.
 
 ### Renderização por chunk
 
@@ -154,6 +152,8 @@ No `main.py`, o ponto de impacto do raycast é convertido em coordenada de bloco
 - `is_solid_at(pos)` → `True` para blocos `solid` e `interactive`; líquidos e efeitos não bloqueiam o jogador.
 - `get_top_y(x, z)` → altura do bloco mais alto da coluna.
 - `set_light_level(level)` → atualiza o brilho de todas as malhas (ignora variações menores que 0.005 para não repintar todo frame).
+- `stream_world(position)` → mantém carregados apenas os chunks próximos da posição.
+- `save_world(path)` / `load_world(path)` → persistem seed, configurações e alterações de blocos.
 - `clear_world()` → destrói tudo e esvazia os dicionários.
 
 ## Jogador e física
@@ -304,13 +304,14 @@ Os testes usam `unittest` e cobrem principalmente a lógica pura:
 | `test_container.py` | empilhar, cliques esquerdo/direito, Shift+clique, grade de crafting e "craftar tudo" |
 | `test_mining.py` | tempo de quebra por ferramenta, progresso, troca de alvo e cooldown |
 | `test_vitals.py` | decaimento da fome, dano periódico por fome, limites |
-| `test_world.py` | `is_exposed` e `chunks_to_rebuild` |
+| `test_world.py` | `is_exposed`, `chunks_to_rebuild`, seed, altura, streaming e persistência |
+| `test_runtime.py` | inicialização, transições via `main.py`, texturas reais, mesh e assets ausentes |
 | `test_craft.py` | receitas em qualquer posição, espelhadas, sem formato, 2×2 vs 3×3 e ausência de ambiguidade |
 | `test_registry.py` | IDs das receitas e dos drops registrados, tamanho de pilha e existência dos arquivos de textura referenciados |
 
 Os registros são testados trocando os dicionários de `textures` por `defaultdict(lambda: None)`, então nenhuma textura real é carregada.
 
-O workflow `.github/workflows/tests.yml` roda em Python 3.10 e 3.12: instala `requirements.txt`, verifica a sintaxe com `compileall` e executa `python -m unittest discover tests -v`.
+O workflow `.github/workflows/tests.yml` roda em Python 3.10 e 3.12: instala `requirements-dev.txt`, verifica a sintaxe, executa os testes com cobertura, lint e type checking.
 
 Ao adicionar lógica nova, prefira colocá-la em uma função/classe sem Ursina (como `physics.py` ou `vitals.py`) e deixar a `Entity` só aplicar o resultado — é isso que mantém o projeto testável.
 
@@ -337,8 +338,8 @@ Ao adicionar lógica nova, prefira colocá-la em uma função/classe sem Ursina 
 
 Itens que já têm estrutura no código mas ainda não estão completos — úteis para quem procura por onde contribuir:
 
-- **Mundo finito e gerado de uma vez**: `create_world` gera toda a área na entrada da partida; `RENDER_DIST` existe mas ainda não há carregamento de chunks por distância. `get_top_y` percorre todo `placed_blocks`.
-- **Sem persistência**: o mundo é descartado ao voltar ao menu.
+- **Mundo finito**: a área ainda é limitada por `size`, mas chunks são carregados por distância e regenerados pela seed.
+- **Persistência**: seed, configurações e alterações de blocos são salvas em JSON; inventário e posição do jogador ainda não fazem parte do save.
 - **Inventário**: apenas a hotbar guarda itens; a `InventoryScreen` só espelha a hotbar e o crafting (`craft.py`) ainda não está ligado a ela.
 - **Blocos**: `hardness` ainda não é usado (quebra instantânea); líquidos não escoam; `crafting_table` é `interactive` mas não abre interface.
 - **Itens**: comida (`hunger`) e ferramentas (`damage`, `durability`) ainda não têm efeito; `Vitals.eat` já existe para isso.

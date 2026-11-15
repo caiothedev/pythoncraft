@@ -9,31 +9,43 @@ from ursina import *
 
 app = Ursina()
 
-from game.core.player import PlayerController
-from game.core.physics import block_overlaps_player
-from game.core.state import State, game
-from game.core.modes import get_mode
-from game.core.world import create_world, clear_world, break_block, place_block, get_block_at, set_light_level
-from game.core.container import PlayerInventory
-from game.core.mining import MiningProgress
-from game.graphics.lighting import DayNightLighting
-from game.graphics.particles import spawn_particles
-from game.graphics.breaking import BreakingOverlay
-from game.inventory import Hotbar, InventoryScreen, CraftingTableScreen
-from game.drops import spawn_drop, clear_drops, THROW_PICKUP_DELAY
-from game.textures import load_all_textures
-from game.items import load_all_items, get_item, max_stack_for
-from game.entities import load_all_entities
-from game.blocks import load_all_blocks, get_block
-from game.hud import HUD
-from game.sounds import play_break_block, play_place_block
 import game.textures as textures
 import game.ui as ui
+from game.blocks import get_block, load_all_blocks
+from game.core.container import PlayerInventory
+from game.core.mining import MiningProgress
+from game.core.modes import get_mode
+from game.core.physics import block_overlaps_player
+from game.core.player import PlayerController
+from game.core.state import State, game
+from game.core.world import (
+    break_block,
+    clear_world,
+    create_world,
+    get_block_at,
+    place_block,
+    set_light_level,
+    stream_world,
+)
+from game.drops import THROW_PICKUP_DELAY, clear_drops, spawn_drop
+from game.entities import load_all_entities
+from game.graphics.breaking import BreakingOverlay
+from game.graphics.lighting import DayNightLighting
+from game.graphics.particles import spawn_particles
+from game.hud import HUD
+from game.inventory import CraftingTableScreen, Hotbar, InventoryScreen
+from game.items import get_item, load_all_items, max_stack_for
+from game.sounds import play_break_block, play_place_block
+from game.textures import load_all_textures
 
 # Rode com `python main.py --debug` para habilitar atalhos de desenvolvimento
 DEBUG = "--debug" in sys.argv
+WORLD_SEED = next(
+    (int(argument.split("=", 1)[1]) for argument in sys.argv if argument.startswith("--seed=")),
+    None,
+)
 
-REACH = 6  # distância máxima para quebrar/colocar blocos
+REACH = 7  # distância máxima para quebrar/colocar blocos
 
 window.title = "pythoncraft - bycaiothedev"
 window.borderless = False
@@ -235,7 +247,7 @@ def _enter_loading(previous):
     global spawn_point
     ui.menu_panel.enabled = False
 
-    surface_y = create_world(size=28, max_height=8)
+    surface_y = create_world(size=28, max_height=8, seed=WORLD_SEED, render_distance=2)
     spawn_point = Vec3(0, surface_y + 3, 0)
     game.mode.setup_hotbar(hotbar)
     hotbar.select(0)
@@ -355,6 +367,9 @@ def input(key):
         hotbar.select(int(key) - 1)
 
 def update():
+    if game.is_(State.PLAYING) and game.player is not None:
+        stream_world(game.player.position)
     _update_mining()
 
-app.run()
+if __name__ == "__main__":
+    app.run()

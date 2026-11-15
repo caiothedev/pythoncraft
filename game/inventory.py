@@ -1,3 +1,4 @@
+from dataclasses import replace
 from typing import Callable, Optional
 from ursina import *
 import game.textures as textures
@@ -376,7 +377,7 @@ class ContainerScreen(Entity):
                 amount = self.cursor.count if button == LEFT else 1
                 self._drop(self.cursor.id, amount)
                 left = self.cursor.count - amount
-                self.cursor = self.cursor._replace(count=left) if left > 0 else None
+                self.cursor = replace(self.cursor, count=left) if left > 0 else None
             return
 
         if view.kind == SLOT_RESULT:
